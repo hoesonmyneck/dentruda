@@ -990,8 +990,8 @@ function renderDynamics(rows) {
 }
 
 // ─────────────────────── Полноэкранный режим блока карты ───────────────────────
-// базовый зум карты «Мер господдержки» — обзорный +0.5 (полноэкранный режим зум не меняет)
-const _kzZoom = () => KZ_VIEW.zoom + 0.5;
+// базовый зум карты — как в /help (KZ_VIEW.zoom); полноэкранный режим зум не меняет
+const _kzZoom = () => KZ_VIEW.zoom;
 
 function toggleFullscreen(btn) {
   const section = btn.closest('.map-panel');
@@ -1294,8 +1294,8 @@ async function aiInit() {
   if (!Object.keys(regionCentroids).length) {
     try { (await fetch('/map/region_centroids.json').then(r => r.json())).forEach(c => { regionCentroids[c.id_reg] = c.centroid; }); } catch (_) {}
   }
-  _aiMap = L.map('ai-map', { zoomControl: true, attributionControl: false, zoomSnap: 0.25 })
-    .setView(KZ_VIEW.center, KZ_VIEW.zoom + 0.25);
+  _aiMap = L.map('ai-map', { zoomControl: true, attributionControl: false, zoomSnap: 0.5 })
+    .setView(KZ_VIEW.center, KZ_VIEW.zoom);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     { maxZoom: 18, maxNativeZoom: 16 }).addTo(_aiMap);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
@@ -1407,7 +1407,7 @@ function aiRenderLabels() {
   _aiLabels.addTo(_aiMap);
 }
 function aiSelectRegion(kato) { _aiRegion = (_aiRegion === kato) ? null : kato; aiRefresh(); }
-function aiGoBack() { _aiRegion = null; aiRefresh(); if (_aiMap) _aiMap.setView(KZ_VIEW.center, KZ_VIEW.zoom + 0.25); }
+function aiGoBack() { _aiRegion = null; aiRefresh(); if (_aiMap) _aiMap.setView(KZ_VIEW.center, KZ_VIEW.zoom); }
 function aiUpdateCrumb() {
   const el = document.getElementById('ai-breadcrumb'); if (!el) return;
   const r = _aiRegion != null ? _aiRegById[_aiRegion] : null;
