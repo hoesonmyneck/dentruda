@@ -1,0 +1,14 @@
+{
+	auto_https disable_redirects
+}
+
+# HTTP (container :80 → host 8085) — обычный доступ
+:80 {
+	reverse_proxy backend:8000
+}
+
+# HTTPS (container :443 → host 8445) — самоподписанный сертификат Caddy
+localhost {
+	tls internal
+	reverse_proxy backend:8000
+}

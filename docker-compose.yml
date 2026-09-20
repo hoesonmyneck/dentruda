@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: cbdi
+      POSTGRES_USER: cbdi
+      POSTGRES_PASSWORD: cbdi123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cbdi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://cbdi:cbdi123@db:5432/cbdi
+      # В проде задать сильные значения (см. .env):
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-prod-rfpm-7a1c9e2b}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-crtr2026}
+    volumes:
+      - ./backend/static:/app/static
+      # data/ монтируется, чтобы обновлённая экселька переживала пересборку образа.
+      - ./backend/data:/app/data
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "8085:80"     # http  → http://<host>:8085
+      - "8445:443"    # https → https://<host>:8445 (self-signed, tls internal)
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

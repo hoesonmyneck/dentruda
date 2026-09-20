@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+certs/
+*.key
+*.pem
+*.crt
+*.csr
+caddy_data/
+caddy_config/

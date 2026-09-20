@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru" data-variant="v3">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Анализ по видам помощи</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap">
+  <link id="main-style" rel="stylesheet" href="/style.css?v=16">
+  <script>
+    /* приложение зафиксировано на зелёной теме (v3) */
+    document.documentElement.setAttribute('data-variant', 'v3');
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="header-title-block" id="s1-title">
+    <h0>Анализ по видам помощи</h0>
+    <div class="header-date-row">
+      <div class="header-date" id="header-date"></div>
+    </div>
+  </div>
+  <div class="header-title-block" id="ai-title" style="display:none">
+    <h0>Совпадение ИИ с заключениями врачей-экспертов</h0>
+    <div class="header-date-row">
+      <div class="header-date">определение инвалидности · очное и заочное освидетельствование</div>
+    </div>
+  </div>
+  <div class="breadcrumb" id="breadcrumb">
+    <span onclick="goBack()">Казахстан</span>
+  </div>
+  <div class="breadcrumb" id="ai-breadcrumb" style="display:none">
+    <span onclick="aiGoBack()">Казахстан</span>
+  </div>
+  <div class="section-switch" role="group" aria-label="Раздел">
+    <button type="button" class="sec-btn active" data-sec="main" onclick="switchSection('main')">Меры господдержки</button>
+    <button type="button" class="sec-btn" data-sec="ai" onclick="switchSection('ai')">Совпадения ИИ</button>
+  </div>
+  <button type="button" class="logout-btn" onclick="logout()" title="Выйти">Выйти</button>
+</header>
+
+<div class="main-layout v2-layout" id="section-main">
+
+  <!-- Верхний ряд: 3 KPI -->
+  <div class="kpi-col kpi-col-left">
+    <div class="kpi-card kpi-card-expandable" id="kpi-card-help-types" onclick="toggleHelpTypesList()"
+         title="Нажмите: список видов помощи">
+      <div class="label">Всего видов помощи</div>
+      <div class="value accent" id="kpi-help-types">—</div>
+      <div class="kpi-expand-corners"><span class="kpi-cn kpi-cn-tl"></span><span class="kpi-cn kpi-cn-tr"></span><span class="kpi-cn kpi-cn-bl"></span><span class="kpi-cn kpi-cn-br"></span></div>
+      <div class="kpi-help-list" id="kpi-help-list" onclick="event.stopPropagation()"></div>
+    </div>
+
+    <div class="kpi-card" id="kpi-card-recipients">
+      <div class="label">Количество получателей</div>
+      <div class="value accent" id="kpi-recipients">—</div>
+    </div>
+
+    <div class="kpi-card kpi-card-expandable" id="kpi-card-sum" onclick="toggleSumDemo()"
+         title="Нажмите: разбивка суммы по возрасту и полу">
+      <div class="label">Сумма</div>
+      <div class="value accent kpi-sum-val"><span id="kpi-sum">—</span> ₸</div>
+      <div class="kpi-expand-corners"><span class="kpi-cn kpi-cn-tl"></span><span class="kpi-cn kpi-cn-tr"></span><span class="kpi-cn kpi-cn-bl"></span><span class="kpi-cn kpi-cn-br"></span></div>
+      <div class="kpi-help-list" id="kpi-sum-panel" onclick="event.stopPropagation()"></div>
+    </div>
+  </div>
+
+  <!-- Нижний ряд: карта + правая колонка -->
+  <div class="v2-mainrow">
+
+    <!-- Center: блок карты с вкладками (Карта / Динамика) -->
+    <div class="map-panel map-tabs">
+      <div class="map-tabs-bar">
+        <div class="mtab-scroll">
+          <button type="button" class="mtab-btn active" data-mtab="map" onclick="switchMapTab('map')">Карта</button>
+          <button type="button" class="mtab-btn" data-mtab="summary" onclick="switchMapTab('summary')">Аналитика по видам помощи</button>
+          <button type="button" class="mtab-btn" data-mtab="regions" onclick="switchMapTab('regions')">Аналитика по регионам</button>
+          <button type="button" class="mtab-btn" data-mtab="dynamics" onclick="switchMapTab('dynamics')">Динамика</button>
+        </div>
+        <div class="breadcrumb map-fs-crumb" id="map-fs-breadcrumb"><span onclick="goBack()">Казахстан</span></div>
+        <button type="button" class="expand-btn map-expand" onclick="toggleFullscreen(this)" title="Во весь экран">⛶</button>
+      </div>
+
+      <div class="mtab-pane active" id="mtab-map">
+        <div class="map-view-seg">
+          <button type="button" class="mv-btn active" data-mview="2d" onclick="switchMapView('2d')">2D</button>
+          <button type="button" class="mv-btn" data-mview="3d" onclick="switchMapView('3d')">3D</button>
+        </div>
+        <div class="map-view active" id="map-view-2d">
+          <button type="button" class="expand-btn map-info" onclick="showCountryPanel(event)" title="Сводка по Казахстану">Казахстан</button>
+          <div id="map"></div>
+        </div>
+        <div class="map-view" id="map-view-3d">
+          <div id="map3d-wrap" class="map3d-wrap">
+            <button type="button" id="map3d-back" class="map3d-back" style="display:none" onclick="backFromRegion3D()">← Регионы</button>
+            <div class="map3d-br">
+              <button type="button" id="map3d-home" class="map3d-home" title="Сбросить вид" aria-label="Сбросить вид" onclick="resetMap3DView()">⌂</button>
+              <div id="map3d-legend" class="map3d-legend">
+                <div class="m3l-item"><span class="m3l-bar"></span><span id="map3d-legend-metric">Высота столбца = сумма выплат</span></div>
+                <div class="m3l-item"><span class="m3l-cross">✕</span>Сумма отсутствует</div>
+              </div>
+            </div>
+            <div id="map3d-tip" class="cube3d-tip" style="display:none"></div>
+            <div id="map3d-empty" class="map3d-empty" style="display:none">Нет данных</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mtab-pane" id="mtab-summary"><div id="an-paytypes" class="an-wrap"></div></div>
+      <div class="mtab-pane" id="mtab-regions"><div id="an-regions" class="an-wrap"></div></div>
+
+      <div class="mtab-pane" id="mtab-dynamics">
+        <div class="dyn-tab-bar">
+          <div class="dyn-controls">
+            <div class="dyn-seg" id="dyn-metric-seg">
+              <button class="dyn-seg-btn active" data-dmetric="people">Количество получателей</button>
+              <button class="dyn-seg-btn" data-dmetric="sum">Сумма</button>
+            </div>
+            <div class="dyn-year-note">за 2026 год, помесячно</div>
+          </div>
+        </div>
+        <div class="dyn-chart-wrap">
+          <canvas id="dynamics-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: рейтинг видов помощи -->
+    <div class="kpi-col kpi-col-right">
+      <div class="kpi-card kpi-card-expandable" id="kpi-card-top-mgp" onclick="toggleRatingList()">
+        <div class="label">Рейтинг видов помощи по сумме</div>
+        <div id="kpi-top-mgp" class="kpi-top-mgp"></div>
+        <div class="kpi-expand-corners"><span class="kpi-cn kpi-cn-tl"></span><span class="kpi-cn kpi-cn-tr"></span><span class="kpi-cn kpi-cn-bl"></span><span class="kpi-cn kpi-cn-br"></span></div>
+        <div class="kpi-help-list" id="kpi-top-mgp-list" onclick="event.stopPropagation()"></div>
+      </div>
+      <!-- Гео-панель: выезжает на месте рейтинга при выборе области/района на карте -->
+      <div id="kpi-geo-side" class="kpi-geo-side"></div>
+    </div>
+
+  </div><!-- /v2-mainrow -->
+
+</div>
+
+<!-- ═══════════ Раздел 2: Совпадение ИИ с заключениями врачей-экспертов ═══════════ -->
+<div id="section-ai" style="display:none">
+  <div class="ai-kpis">
+    <div class="ai-card">
+      <div class="ai-label">Всего заключений</div>
+      <div class="ai-big" id="ai-total">—</div>
+      <div class="ai-sub" id="ai-total-sub">—</div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-label">Совпала группа инвалидности</div>
+      <div class="ai-row-base"><div class="ai-mid" id="ai-grp-pct">—</div><div class="ai-sub" id="ai-grp-cnt">—</div></div>
+      <div class="ai-bars">
+        <div class="ai-bar-row"><span class="ai-bar-lbl">заочное</span><div class="ai-bar-track"><div class="ai-bar-fill z" id="ai-grp-zbar"></div></div><span class="ai-bar-val" id="ai-grp-z">—</span></div>
+        <div class="ai-bar-row"><span class="ai-bar-lbl">очное</span><div class="ai-bar-track"><div class="ai-bar-fill o" id="ai-grp-obar"></div></div><span class="ai-bar-val" id="ai-grp-o">—</span></div>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-label">Полное совпадение · группа и срок</div>
+      <div class="ai-row-base"><div class="ai-mid" id="ai-full-pct">—</div><div class="ai-sub" id="ai-full-cnt">—</div></div>
+      <div class="ai-bars">
+        <div class="ai-bar-row"><span class="ai-bar-lbl">заочное</span><div class="ai-bar-track"><div class="ai-bar-fill z" id="ai-full-zbar"></div></div><span class="ai-bar-val" id="ai-full-z">—</span></div>
+        <div class="ai-bar-row"><span class="ai-bar-lbl">очное</span><div class="ai-bar-track"><div class="ai-bar-fill o" id="ai-full-obar"></div></div><span class="ai-bar-val" id="ai-full-o">—</span></div>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-label">Форма освидетельствования</div>
+      <div class="ai-split"><div class="ai-split-z" id="ai-form-zbar"></div><div class="ai-split-o" id="ai-form-obar"></div></div>
+      <div class="ai-form-nums">
+        <div><div class="ai-mid z" id="ai-form-z">—</div><div class="ai-sub" id="ai-form-z-sub">заочное</div></div>
+        <div class="right"><div class="ai-mid o" id="ai-form-o">—</div><div class="ai-sub" id="ai-form-o-sub">очное</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-mainrow">
+    <div class="ai-map-panel">
+      <div class="ai-tabs-bar">
+        <nav class="ai-tabs">
+          <button type="button" class="ai-tab active" data-aitab="map" onclick="aiSwitchTab('map')">Карта</button>
+          <button type="button" class="ai-tab" data-aitab="levels" onclick="aiSwitchTab('levels')">Уровень совпадения</button>
+          <button type="button" class="ai-tab" data-aitab="groups" onclick="aiSwitchTab('groups')">Группы инвалидности</button>
+          <button type="button" class="ai-tab" data-aitab="diseases" onclick="aiSwitchTab('diseases')">Классы болезней</button>
+        </nav>
+      </div>
+      <div class="ai-pane active" id="ai-tab-map">
+        <div class="ai-form-seg" id="ai-form-seg">
+          <button type="button" class="ai-form-btn active" data-aiform="all" onclick="aiSetForm('all')">Все формы</button>
+          <button type="button" class="ai-form-btn" data-aiform="z" onclick="aiSetForm('z')">Заочное</button>
+          <button type="button" class="ai-form-btn" data-aiform="o" onclick="aiSetForm('o')">Очное</button>
+        </div>
+        <div id="ai-map"></div>
+      </div>
+      <div class="ai-pane" id="ai-tab-levels"></div>
+      <div class="ai-pane" id="ai-tab-groups"></div>
+      <div class="ai-pane" id="ai-tab-diseases"></div>
+    </div>
+    <div class="ai-rating">
+      <div class="ai-label">Рейтинг регионов по числу заключений</div>
+      <div class="ai-rating-hdr"><span></span><span>Регион</span><span>Заочное / очное</span><span class="r">Всего</span><span class="r">Совп.</span></div>
+      <div id="ai-rating-list" class="ai-rating-list"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/app.js?v=30"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="/map3d.js?v=2"></script>
+</body>
+</html>
