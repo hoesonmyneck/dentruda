@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap">
-  <link id="main-style" rel="stylesheet" href="/style.css?v=16">
+  <link id="main-style" rel="stylesheet" href="/style.css?v=17">
   <script>
     /* приложение зафиксировано на зелёной теме (v3) */
     document.documentElement.setAttribute('data-variant', 'v3');
@@ -186,13 +186,13 @@
           <button type="button" class="ai-tab" data-aitab="groups" onclick="aiSwitchTab('groups')">Группы инвалидности</button>
           <button type="button" class="ai-tab" data-aitab="diseases" onclick="aiSwitchTab('diseases')">Классы болезней</button>
         </nav>
-      </div>
-      <div class="ai-pane active" id="ai-tab-map">
         <div class="ai-form-seg" id="ai-form-seg">
           <button type="button" class="ai-form-btn active" data-aiform="all" onclick="aiSetForm('all')">Все формы</button>
           <button type="button" class="ai-form-btn" data-aiform="z" onclick="aiSetForm('z')">Заочное</button>
           <button type="button" class="ai-form-btn" data-aiform="o" onclick="aiSetForm('o')">Очное</button>
         </div>
+      </div>
+      <div class="ai-pane active" id="ai-tab-map">
         <div id="ai-map"></div>
       </div>
       <div class="ai-pane" id="ai-tab-levels"></div>
@@ -209,7 +209,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="/app.js?v=31"></script>
+<script src="/app.js?v=33"></script>
 <script type="importmap">
 {
   "imports": {

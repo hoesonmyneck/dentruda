@@ -1441,6 +1441,9 @@ function aiSwitchTab(name) {
   _aiTab = name;
   document.querySelectorAll('#section-ai .ai-tab').forEach(b => b.classList.toggle('active', b.dataset.aitab === name));
   document.querySelectorAll('#section-ai .ai-pane').forEach(p => p.classList.toggle('active', p.id === `ai-tab-${name}`));
+  // переключатель форм (Все/Заочное/Очное) виден только на вкладке «Карта»
+  const seg = document.getElementById('ai-form-seg');
+  if (seg) seg.style.display = name === 'map' ? '' : 'none';
   if (name === 'map') setTimeout(() => _aiMap && _aiMap.invalidateSize(), 60);
   else aiRenderTab(name);
 }
@@ -1497,22 +1500,27 @@ function aiRenderGroups(rows) {
       <span><span class="dot" style="background:#2FD9C5"></span>Очное</span>
       <span style="color:#A3AEDD">Совпало по группе инвалидности, число заключений</span></div>
     <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:0;">
-      ${rows.map(r => `<div class="ai-grp-row"><div class="lab">${_escHtml(r.label)}</div>
+      ${rows.map(r => {
+        const tt = (r.z + r.o) || 1;
+        const pz = Math.round(r.z / tt * 100), po = 100 - pz;
+        return `<div class="ai-grp-row"><div class="lab">${_escHtml(r.label)}</div>
       <div class="ai-grp-bars">
-        <div class="ai-grp-bar"><div class="tr"><div class="fz" style="width:${r.z / max * 100}%"></div></div><span style="width:64px;text-align:right;color:#EDF1FF">${formatInt(r.z)}</span></div>
-        <div class="ai-grp-bar"><div class="tr"><div class="fo" style="width:${r.o / max * 100}%"></div></div><span style="width:64px;text-align:right;color:#EDF1FF">${formatInt(r.o)}</span></div>
-      </div></div>`).join('')}
+        <div class="ai-grp-bar" title="заочное: ${formatInt(r.z)} (${pz}%)"><div class="tr"><div class="fz" style="width:${r.z / max * 100}%"></div></div><span style="width:64px;text-align:right;color:#EDF1FF">${formatInt(r.z)}</span></div>
+        <div class="ai-grp-bar" title="очное: ${formatInt(r.o)} (${po}%)"><div class="tr"><div class="fo" style="width:${r.o / max * 100}%"></div></div><span style="width:64px;text-align:right;color:#EDF1FF">${formatInt(r.o)}</span></div>
+      </div></div>`;
+      }).join('')}
     </div></div>`;
 }
-function _aiPctBar(p, color) {
-  return `<div style="display:flex;align-items:center;gap:10px;height:8px;">
+function _aiPctBar(p, color, cnt) {
+  const tt = cnt == null ? '' : ` title="${formatInt(cnt)} заключений (${Math.round(p)}%)"`;
+  return `<div style="display:flex;align-items:center;gap:10px;height:8px;"${tt}>
     <div style="flex-grow:1;height:6px;border-radius:3px;background:#232B63;overflow:hidden;"><div style="width:${Math.min(100, p)}%;height:6px;background:${color};"></div></div>
     <div style="width:46px;text-align:right;font-size:12px;color:#EDF1FF;font-weight:500;">${Math.round(p)}%</div></div>`;
 }
 function aiRenderDiseases(rows) {
   const el = document.getElementById('ai-tab-diseases'); if (!el) return;
   const GRID = 'display:grid;grid-template-columns:minmax(220px,300px) 84px 147px minmax(0,1fr) minmax(0,1fr);column-gap:20px;';
-  const twoBar = (zp, op) => `<div style="display:flex;flex-direction:column;gap:8px;">${_aiPctBar(zp, '#FFB347')}${_aiPctBar(op, '#2FD9C5')}</div>`;
+  const twoBar = (zp, op, zc, oc) => `<div style="display:flex;flex-direction:column;gap:8px;">${_aiPctBar(zp, '#FFB347', zc)}${_aiPctBar(op, '#2FD9C5', oc)}</div>`;
   const header = `<div style="${GRID}align-items:center;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#A3AEDD;height:28px;position:sticky;top:0;background:#151B45;z-index:1;">
     <div>Класс болезней</div><div style="text-align:right;">Всего</div><div>Соотношение форм</div><div>Совпала группа, % от формы</div><div>Группа и срок, % от формы</div></div>`;
   const body = rows.map(r => {
@@ -1520,12 +1528,12 @@ function aiRenderDiseases(rows) {
     return `<div style="${GRID}align-items:center;height:52px;border-top:1px solid #2B3572;">
       <div style="font-size:13px;color:#EDF1FF;line-height:1.3;">${_escHtml(r.disease)}</div>
       <div style="font-family:'Unbounded','Golos Text',sans-serif;font-size:14px;font-weight:500;color:#EDF1FF;text-align:right;">${formatInt(r.total)}</div>
-      <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="display:flex;flex-direction:column;gap:5px;" title="заочно ${formatInt(r.z_tot)} (${Math.round(r.z_tot / t * 100)}%) · очно ${formatInt(r.o_tot)} (${Math.round(r.o_tot / t * 100)}%)">
         <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#232B63;"><div style="width:${r.z_tot / t * 100}%;background:#FFB347;"></div><div style="width:${r.o_tot / t * 100}%;background:#2FD9C5;"></div></div>
         <div style="font-size:11px;color:#A3AEDD;white-space:nowrap;">заочно ${formatInt(r.z_tot)} · очно ${formatInt(r.o_tot)}</div>
       </div>
-      ${twoBar(r.grp_z_pct, r.grp_o_pct)}
-      ${twoBar(r.full_z_pct, r.full_o_pct)}
+      ${twoBar(r.grp_z_pct, r.grp_o_pct, r.z_grp, r.o_grp)}
+      ${twoBar(r.full_z_pct, r.full_o_pct, r.z_full, r.o_full)}
     </div>`;
   }).join('');
   el.innerHTML = `<div class="ai-scroll">${header}${body}</div>`;

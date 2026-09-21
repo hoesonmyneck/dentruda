@@ -4906,7 +4906,7 @@ body.sec-ai::before{ display:none; }
 .ai-pane{ display:none; flex:1 1 auto; min-height:0; }
 .ai-pane.active{ display:flex; flex-direction:column; min-height:0; }
 #ai-map{ flex:1 1 auto; min-height:280px; border-radius:10px; background:#0D1233; }
-.ai-form-seg{ display:inline-flex; align-self:flex-start; border:1px solid #2B3572; border-radius:10px; overflow:hidden; margin-bottom:8px; }
+.ai-form-seg{ display:inline-flex; flex:0 0 auto; border:1px solid #2B3572; border-radius:10px; overflow:hidden; }
 .ai-form-btn{ border:0; background:transparent; color:#A3AEDD; font:500 13px 'Golos Text',sans-serif; padding:6px 16px; cursor:pointer; }
 .ai-form-btn.active{ background:#2B3572; color:#EDF1FF; }
 
