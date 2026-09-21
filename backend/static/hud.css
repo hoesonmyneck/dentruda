@@ -1421,3 +1421,48 @@ html[data-skin="hud"] .map-panel .map-info {
   padding-top: 0;
   padding-bottom: 0;
 }
+
+/* ═════════ Появление экрана входа (в том числе после выхода из аккаунта) ═════════ */
+
+/* переход к окну входа короче общего — иначе орб экрана загрузки
+   слишком долго висит поверх проявляющейся карточки */
+html[data-skin="hud"] .boot.is-quick { transition-duration: .3s; }
+
+@keyframes hud-auth-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes hud-auth-card-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes hud-auth-item-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+html[data-skin="hud"] .auth-overlay {
+  animation: hud-auth-in .45s ease both;
+}
+/* карточка трогается, когда экран загрузки уже почти погас, — иначе орб
+   и подпись «Загрузка данных» накладываются на неё */
+html[data-skin="hud"] .auth-card {
+  animation: hud-auth-card-in .55s cubic-bezier(0.22, 1, 0.36, 1) .28s both;
+}
+/* содержимое карточки набирается по очереди сверху вниз */
+html[data-skin="hud"] .auth-card > * {
+  animation: hud-auth-item-in .5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-skin="hud"] .auth-card > *:nth-child(1) { animation-delay: .38s; }
+html[data-skin="hud"] .auth-card > *:nth-child(2) { animation-delay: .43s; }
+html[data-skin="hud"] .auth-card > *:nth-child(3) { animation-delay: .47s; }
+html[data-skin="hud"] .auth-card > *:nth-child(4) { animation-delay: .51s; }
+html[data-skin="hud"] .auth-card > *:nth-child(5) { animation-delay: .55s; }
+html[data-skin="hud"] .auth-card > *:nth-child(6) { animation-delay: .58s; }
+html[data-skin="hud"] .auth-card > *:nth-child(7) { animation-delay: .61s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="hud"] .auth-overlay,
+  html[data-skin="hud"] .auth-card,
+  html[data-skin="hud"] .auth-card > * { animation: none; }
+}

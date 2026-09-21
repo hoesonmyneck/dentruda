@@ -18,6 +18,7 @@ import { mountOrb } from './orb.js';
   var MIN_MS = 800;    // минимальная выдержка — чтобы экран не мигал
   var MAX_MS = 9000;   // страховка: снимаем экран, даже если данные не пришли
   var FADE_MS = 700;   // должно совпадать с transition в hud.css
+  var QUICK_MS = 300;  // переход к окну входа — короче, .boot.is-quick
 
   var t0 = performance.now();
   var done = false;
@@ -35,29 +36,34 @@ import { mountOrb } from './orb.js';
     watchers = [];
   }
 
-  /** @param {boolean} instant — без выдержки и без затухания (показываем вход) */
-  function finish(instant) {
+  /**
+   * @param {boolean} toLogin — путь «показываем окно входа»: без минимальной
+   * выдержки и с укороченным затуханием. Раньше экран снимался тут мгновенно,
+   * и форма входа возникала рывком — теперь идёт перекрёстное затухание:
+   * экран загрузки гаснет, окно входа под ним проявляется своей анимацией.
+   */
+  function finish(toLogin) {
     if (done) return;
     done = true;
     cleanup();
 
-    var wait = instant ? 0 : Math.max(0, MIN_MS - (performance.now() - t0));
+    var wait = toLogin ? 0 : Math.max(0, MIN_MS - (performance.now() - t0));
+    var fade = toLogin ? QUICK_MS : FADE_MS;
+
     setTimeout(function () {
       var boot = el('boot');
-      // класс на <html> снимается первым: интерфейс начинает проявляться
-      // одновременно с затуханием экрана загрузки
-      document.documentElement.classList.remove('app-booting');
-      if (boot) {
-        if (instant) boot.remove();
-        else {
-          boot.classList.add('is-done');
-          setTimeout(function () {
-            if (orb) orb.stop();
-            boot.remove();
-          }, FADE_MS);
-        }
-      }
-      if (instant && orb) orb.stop();
+      /* Класс снимаем только когда показываем дашборд: он начинает проявляться
+         одновременно с затуханием экрана загрузки. На пути к окну входа его
+         оставляем — иначе сквозь полупрозрачный оверлей в момент перехода
+         просвечивает пустой дашборд с прочерками вместо чисел. */
+      if (!toLogin) document.documentElement.classList.remove('app-booting');
+      if (!boot) return;
+      if (toLogin) boot.classList.add('is-quick');
+      boot.classList.add('is-done');
+      setTimeout(function () {
+        if (orb) orb.stop();
+        boot.remove();
+      }, fade);
     }, wait);
   }
 
