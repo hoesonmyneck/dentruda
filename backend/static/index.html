@@ -8,14 +8,82 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap">
   <link id="main-style" rel="stylesheet" href="/style.css?v=17">
+  <!-- Слой оформления «HUD» — работает только при <html data-skin="hud"> -->
+  <link id="hud-style" rel="stylesheet" href="/hud.css?v=1">
   <script>
     /* приложение зафиксировано на зелёной теме (v3) */
     document.documentElement.setAttribute('data-variant', 'v3');
+
+    /* Скин интерфейса: 'classic' — исходное оформление, 'hud' — ситуационный центр.
+       Ставим до первой отрисовки, чтобы не мигало. */
+    (function () {
+      var s = 'classic';
+      try { s = localStorage.getItem('ui-skin') || 'classic'; } catch (e) {}
+      document.documentElement.setAttribute('data-skin', s);
+
+      /* Экран загрузки и скрытие интерфейса включаются классом на <html>
+         прямо здесь — иначе между отрисовкой и запуском модулей успевает
+         мелькнуть пустая страница. Снимает класс boot.js. */
+      if (s === 'hud') {
+        document.documentElement.classList.add('app-booting');
+        /* страховка: если модуль не загрузился, интерфейс всё равно покажем */
+        setTimeout(function () {
+          document.documentElement.classList.remove('app-booting');
+          var b = document.getElementById('boot');
+          if (b) b.remove();
+        }, 12000);
+      }
+    })();
+
+    function applySkin(skin) {
+      document.documentElement.setAttribute('data-skin', skin);
+      try { localStorage.setItem('ui-skin', skin); } catch (e) {}
+      var btn = document.getElementById('skin-toggle');
+      if (btn) {
+        btn.querySelector('.skin-txt').textContent = skin === 'hud' ? 'HUD' : 'Классика';
+        btn.setAttribute('aria-pressed', skin === 'hud' ? 'true' : 'false');
+        btn.title = skin === 'hud'
+          ? 'Оформление «Ситуационный центр» — нажмите, чтобы вернуть классическое'
+          : 'Классическое оформление — нажмите, чтобы включить «Ситуационный центр»';
+      }
+      /* отступы панелей меняются — пересчитываем размеры карт и графиков */
+      setTimeout(function () {
+        try { if (typeof map !== 'undefined' && map) map.invalidateSize(); } catch (e) {}
+        try { if (typeof _aiMap !== 'undefined' && _aiMap) _aiMap.invalidateSize(); } catch (e) {}
+        try {
+          if (window.Chart && Chart.instances) {
+            Object.keys(Chart.instances).forEach(function (k) { Chart.instances[k].resize(); });
+          }
+        } catch (e) {}
+        window.dispatchEvent(new Event('resize'));
+      }, 60);
+      /* мини-графики в карточках показателей (hud.js) */
+      try { if (window.hudSparklines) window.hudSparklines(skin); } catch (e) {}
+      /* орб в шапке (orb.js) */
+      try { if (window.hudOrb) window.hudOrb(skin); } catch (e) {}
+    }
+
+    function toggleSkin() {
+      var cur = document.documentElement.getAttribute('data-skin');
+      applySkin(cur === 'hud' ? 'classic' : 'hud');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      applySkin(document.documentElement.getAttribute('data-skin') || 'classic');
+    });
   </script>
 </head>
 <body>
 
+<!-- Экран загрузки (HUD-скин), снимается boot.js -->
+<div id="boot" class="boot" role="status" aria-live="polite">
+  <canvas id="boot-orb" class="boot-orb" aria-hidden="true"></canvas>
+  <div class="boot-cap">Загрузка данных</div>
+</div>
+
 <header>
+  <!-- Орб вместо статичного логотипа (HUD-скин), см. /orb.js -->
+  <canvas id="header-orb" class="header-orb" aria-hidden="true"></canvas>
   <div class="header-title-block" id="s1-title">
     <h0>Анализ по видам помощи</h0>
     <div class="header-date-row">
@@ -38,6 +106,10 @@
     <button type="button" class="sec-btn active" data-sec="main" onclick="switchSection('main')">Меры господдержки</button>
     <button type="button" class="sec-btn" data-sec="ai" onclick="switchSection('ai')">Совпадения ИИ</button>
   </div>
+  <button type="button" class="skin-toggle" id="skin-toggle" onclick="toggleSkin()"
+          aria-pressed="false" title="Переключить оформление">
+    <span class="skin-dot"></span><span class="skin-txt">Классика</span>
+  </button>
   <button type="button" class="logout-btn" onclick="logout()" title="Выйти">Выйти</button>
 </header>
 
@@ -210,6 +282,10 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="/app.js?v=33"></script>
+<script src="/hud.js?v=1"></script>
+<script type="module" src="/orb.js?v=2"></script>
+<script type="module" src="/boot.js?v=1"></script>
+<script type="module" src="/authfx.js?v=1"></script>
 <script type="importmap">
 {
   "imports": {

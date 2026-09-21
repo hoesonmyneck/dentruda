@@ -1,0 +1,1423 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD-скин «ситуационный центр» — дополнительный слой поверх style.css.
+
+   Активируется атрибутом <html data-skin="hud">. Без него файл не влияет
+   ни на один элемент, поэтому исходное оформление остаётся нетронутым.
+   Переключатель — кнопка в шапке (см. index.html, toggleSkin()).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Токены скина ── */
+html[data-skin="hud"] {
+  --h-bg0:      #04081a;
+  --h-bg1:      #081130;
+  --h-bg2:      #0b1a44;
+  --h-panel:    rgba(14, 32, 76, 0.55);
+  --h-panel-hi: rgba(20, 44, 100, 0.68);
+  --h-solid:    #0a1435;
+  --h-line:     rgba(56, 189, 248, 0.22);
+  --h-line-hi:  rgba(56, 189, 248, 0.48);
+  --h-cyan:     #22d3ee;
+  --h-blue:     #4a9bff;
+  --h-teal:     #2ee6c5;
+  --h-amber:    #ffb347;
+  --h-pink:     #f472b6;
+  --h-tx:       #eaf4ff;
+  --h-dim:      #8fa8d4;
+  --h-glow:     0 0 22px rgba(34, 211, 238, 0.20);
+  --h-glow-str: 0 0 28px rgba(34, 211, 238, 0.42);
+
+  /* перекраска базовой палитры — подхватывается всеми компонентами style.css */
+  --bg-body:    #04081a;
+  --bg-card:    rgba(14, 32, 76, 0.55);
+  --bg-deep:    rgba(10, 24, 60, 0.75);
+  --bg-deeper:  rgba(8, 18, 48, 0.85);
+  --bg-hover:   rgba(28, 60, 124, 0.70);
+  --bd-main:    rgba(56, 189, 248, 0.20);
+  --bd-mid:     rgba(56, 189, 248, 0.34);
+  --bd-hi:      rgba(56, 189, 248, 0.55);
+  --tx-main:    #eaf4ff;
+  --tx-dim:     #8fa8d4;
+  --tx-label:   #a9c2ea;
+  --tx-cell:    #eaf4ff;
+  --tx-head:    #ffffff;
+  --tx-sub:     #c9dcff;
+  --tx-muted:   #7d94c0;
+  --ac-blue:    #4a9bff;
+  --ac-teal:    #22d3ee;
+  --ac-male:    #4a9bff;
+  --ac-female:  #f472b6;
+  --map-lbl-bg: rgba(6, 14, 38, 0.88);
+  --map-lbl-tx: #eaf4ff;
+  --grad:       linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+}
+
+/* ───────────────────────────── Фон ───────────────────────────── */
+html[data-skin="hud"] body,
+html[data-skin="hud"] body.sec-ai {
+  background:
+    radial-gradient(1200px 700px at 18% -10%, rgba(34, 211, 238, 0.13), transparent 60%),
+    radial-gradient(1000px 620px at 88% 8%,  rgba(59, 130, 246, 0.16), transparent 62%),
+    radial-gradient(900px 600px at 50% 110%, rgba(46, 230, 197, 0.08), transparent 60%),
+    linear-gradient(170deg, #081130 0%, #050b22 45%, #04081a 100%);
+  background-attachment: fixed;
+  color: var(--h-tx);
+}
+
+/* Технологическая сетка вместо точек */
+html[data-skin="hud"] body::before,
+html[data-skin="hud"] body.sec-ai::before {
+  content: '';
+  display: block;
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.055) 1px, transparent 1px),
+    radial-gradient(rgba(34, 211, 238, 0.10) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 32px 32px;
+  background-position: 0 0, 0 0, 0 0;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 140% 110% at 50% 40%, #000 30%, transparent 92%);
+  -webkit-mask-image: radial-gradient(ellipse 140% 110% at 50% 40%, #000 30%, transparent 92%);
+}
+
+html[data-skin="hud"] #section-ai {
+  background: transparent;
+}
+
+/* ───────────────────────────── Шапка ───────────────────────────── */
+html[data-skin="hud"] header {
+  background: linear-gradient(180deg, rgba(12, 28, 70, 0.92) 0%, rgba(8, 18, 48, 0.72) 100%);
+  border-bottom: 1px solid var(--h-line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+/* светящаяся линия под шапкой */
+html[data-skin="hud"] header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--h-cyan) 22%, rgba(59, 130, 246, 0.9) 58%, transparent);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+html[data-skin="hud"] header h0,
+html[data-skin="hud"] header h1 {
+  color: #fff;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 22px rgba(34, 211, 238, 0.35);
+}
+
+html[data-skin="hud"] .header-date {
+  color: var(--h-dim);
+  opacity: 0.9;
+  letter-spacing: 0.4px;
+}
+
+html[data-skin="hud"] .breadcrumb span,
+html[data-skin="hud"] .breadcrumb span:hover {
+  color: var(--h-cyan) !important;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+}
+
+/* ── Пилюли-переключатели в шапке ── */
+html[data-skin="hud"] .section-switch {
+  background: rgba(8, 20, 52, 0.75);
+  border: 1px solid var(--h-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 18px rgba(0, 0, 0, 0.35);
+  padding: 3px;
+}
+html[data-skin="hud"] .sec-btn {
+  color: var(--h-dim);
+  transition: color .18s, background .18s, box-shadow .18s;
+}
+html[data-skin="hud"] .sec-btn:hover { color: var(--h-tx); }
+html[data-skin="hud"] .sec-btn.active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.95), rgba(59, 130, 246, 0.95));
+  color: #04162a;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+html[data-skin="hud"] .logout-btn {
+  background: rgba(10, 24, 60, 0.7);
+  border: 1px solid var(--h-line);
+  color: var(--h-dim);
+  border-radius: 999px;
+  transition: all .18s;
+}
+html[data-skin="hud"] .logout-btn:hover {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: var(--h-line-hi);
+  color: #fff;
+  box-shadow: var(--h-glow);
+}
+
+/* ─────────────────── Стеклянные панели (карточки) ─────────────────── */
+html[data-skin="hud"] .kpi-card,
+html[data-skin="hud"] .kpi-col .kpi-card,
+html[data-skin="hud"] .ai-card,
+html[data-skin="hud"] .ai-map-panel,
+html[data-skin="hud"] .ai-rating,
+html[data-skin="hud"] .kpi-geo-side,
+html[data-skin="hud"] .gender-item {
+  background:
+    linear-gradient(160deg, rgba(30, 62, 130, 0.42) 0%, rgba(12, 26, 66, 0.55) 48%, rgba(8, 18, 48, 0.62) 100%);
+  border: 1px solid var(--h-line);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow:
+    0 10px 42px rgba(0, 0, 0, 0.48),
+    0 0 26px rgba(34, 211, 238, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  position: relative;
+  transition: border-color .22s, box-shadow .22s, transform .22s;
+}
+
+/* верхняя неоновая кромка карточки */
+html[data-skin="hud"] .kpi-card::after,
+html[data-skin="hud"] .ai-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 16px; right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--h-cyan), rgba(59, 130, 246, 0.85), transparent);
+  opacity: 0.85;
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+html[data-skin="hud"] .kpi-card:hover,
+html[data-skin="hud"] .kpi-col .kpi-card:hover:not(.expanded),
+html[data-skin="hud"] .ai-card:hover {
+  border-color: var(--h-line-hi);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 54px rgba(0, 0, 0, 0.55),
+    0 0 34px rgba(34, 211, 238, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* угловые HUD-скобки на карточках */
+html[data-skin="hud"] .kpi-col .kpi-card::before,
+html[data-skin="hud"] .ai-card::before {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: 7px;
+  border-radius: 12px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--h-cyan), var(--h-cyan)) top left / 14px 1px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) top left / 1px 14px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) top right / 14px 1px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) top right / 1px 14px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) bottom left / 14px 1px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) bottom left / 1px 14px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) bottom right / 14px 1px no-repeat,
+    linear-gradient(var(--h-cyan), var(--h-cyan)) bottom right / 1px 14px no-repeat;
+  opacity: 0.30;
+  transition: opacity .22s;
+}
+html[data-skin="hud"] .kpi-col .kpi-card:hover::before,
+html[data-skin="hud"] .ai-card:hover::before { opacity: 0.7; }
+
+/* ── Метки и крупные числа ── */
+html[data-skin="hud"] .kpi-card .label,
+html[data-skin="hud"] #section-ai .ai-label {
+  color: var(--h-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+html[data-skin="hud"] .kpi-card .value,
+html[data-skin="hud"] .ai-big,
+html[data-skin="hud"] .ai-mid {
+  color: #fff;
+  font-family: 'Unbounded', 'Golos Text', 'Segoe UI', sans-serif;
+  font-weight: 600;
+  text-shadow: 0 0 26px rgba(34, 211, 238, 0.45), 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+html[data-skin="hud"] .kpi-card .value.accent {
+  color: #6fe6ff;
+  text-shadow: 0 0 28px rgba(34, 211, 238, 0.55), 0 0 8px rgba(34, 211, 238, 0.35);
+}
+
+html[data-skin="hud"] .ai-mid.z { color: var(--h-amber); text-shadow: 0 0 22px rgba(255, 179, 71, 0.45); }
+html[data-skin="hud"] .ai-mid.o { color: var(--h-teal);  text-shadow: 0 0 22px rgba(46, 230, 197, 0.45); }
+html[data-skin="hud"] .ai-sub,
+html[data-skin="hud"] #section-ai .ai-sub { color: var(--h-dim); }
+html[data-skin="hud"] .kpi-sub { color: var(--h-dim); }
+html[data-skin="hud"] .kpi-sub b { color: #fff; }
+
+/* ─────────────────── Панель карты ─────────────────── */
+html[data-skin="hud"] .map-panel {
+  background:
+    linear-gradient(160deg, rgba(30, 62, 130, 0.36) 0%, rgba(12, 26, 66, 0.50) 48%, rgba(8, 18, 48, 0.58) 100%);
+  border: 1px solid var(--h-line);
+  border-radius: 16px;
+  padding: 4px 12px 12px;
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    0 10px 42px rgba(0, 0, 0, 0.48),
+    0 0 26px rgba(34, 211, 238, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+html[data-skin="hud"] .map-panel.is-fullscreen {
+  background:
+    radial-gradient(1200px 700px at 20% 0%, rgba(34, 211, 238, 0.10), transparent 60%),
+    linear-gradient(170deg, #081130 0%, #04081a 100%);
+  border-radius: 0;
+}
+
+html[data-skin="hud"] #map,
+html[data-skin="hud"] #ai-map {
+  border: 1px solid var(--h-line);
+  border-radius: 12px;
+  background: #050d24;
+  box-shadow:
+    inset 0 0 70px rgba(4, 10, 30, 0.85),
+    0 0 0 1px rgba(34, 211, 238, 0.10),
+    0 10px 40px rgba(0, 0, 0, 0.5);
+}
+html[data-skin="hud"] #map .leaflet-container,
+html[data-skin="hud"] #map.leaflet-container,
+html[data-skin="hud"] #ai-map .leaflet-container { background: #050d24; }
+
+/* Тайлы — холоднее и темнее, под общий тон */
+html[data-skin="hud"] #map .leaflet-tile-pane,
+html[data-skin="hud"] #ai-map .leaflet-tile-pane {
+  filter: brightness(0.62) contrast(1.18) saturate(1.45) hue-rotate(185deg);
+}
+
+/* Свечение контуров регионов */
+html[data-skin="hud"] #map .leaflet-overlay-pane svg,
+html[data-skin="hud"] #ai-map .leaflet-overlay-pane svg {
+  filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.45));
+}
+
+html[data-skin="hud"] .leaflet-tooltip,
+html[data-skin="hud"] .map-label span {
+  background: rgba(6, 14, 38, 0.86) !important;
+  border: 1px solid var(--h-line) !important;
+  color: var(--h-tx) !important;
+  border-radius: 8px !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(34, 211, 238, 0.14) !important;
+}
+
+html[data-skin="hud"] .leaflet-bar a {
+  background: rgba(10, 24, 60, 0.9) !important;
+  border-color: var(--h-line) !important;
+  color: var(--h-tx) !important;
+}
+html[data-skin="hud"] .leaflet-bar a:hover {
+  background: rgba(34, 211, 238, 0.20) !important;
+  color: #fff !important;
+}
+
+/* ─────────────────── Вкладки и сегменты ─────────────────── */
+html[data-skin="hud"] .map-tabs-bar,
+html[data-skin="hud"] .ai-tabs-bar {
+  border-bottom: 1px solid var(--h-line);
+}
+
+html[data-skin="hud"] .mtab-btn,
+html[data-skin="hud"] .ai-tab {
+  color: var(--h-dim);
+  border-bottom: 2px solid transparent;
+  border-radius: 10px 10px 0 0;
+  transition: color .18s, background .18s, border-color .18s;
+}
+html[data-skin="hud"] .mtab-btn:hover,
+html[data-skin="hud"] .ai-tab:hover {
+  color: var(--h-tx);
+  background: rgba(34, 211, 238, 0.07);
+}
+html[data-skin="hud"] .mtab-btn.active,
+html[data-skin="hud"] .ai-tab.active {
+  color: var(--h-cyan);
+  border-bottom-color: var(--h-cyan);
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.16), rgba(34, 211, 238, 0.02));
+  font-weight: 600;
+  text-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
+  box-shadow: 0 6px 18px -8px rgba(34, 211, 238, 0.7);
+}
+
+/* сегментные переключатели: 2D/3D, метрика динамики, формы освидетельствования */
+html[data-skin="hud"] .map-view-seg,
+html[data-skin="hud"] .dyn-seg,
+html[data-skin="hud"] .ai-form-seg,
+html[data-skin="hud"] .an-mode-seg {
+  background: rgba(8, 20, 52, 0.82);
+  border: 1px solid var(--h-line);
+  border-radius: 999px;
+  overflow: hidden;
+  padding: 2px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html[data-skin="hud"] .mv-btn,
+html[data-skin="hud"] .dyn-seg-btn,
+html[data-skin="hud"] .ai-form-btn,
+html[data-skin="hud"] .an-mode-btn {
+  color: var(--h-dim);
+  border-radius: 999px;
+  border-left: 0 !important;
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+html[data-skin="hud"] .mv-btn:hover,
+html[data-skin="hud"] .dyn-seg-btn:not(.active):hover,
+html[data-skin="hud"] .ai-form-btn:hover,
+html[data-skin="hud"] .an-mode-btn:hover { color: var(--h-tx); background: rgba(34, 211, 238, 0.10); }
+
+html[data-skin="hud"] .mv-btn.active,
+html[data-skin="hud"] .dyn-seg-btn.active,
+html[data-skin="hud"] .ai-form-btn.active,
+html[data-skin="hud"] .an-mode-btn.active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.95), rgba(59, 130, 246, 0.95));
+  color: #04162a;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* кнопки-иконки поверх карты */
+html[data-skin="hud"] .expand-btn,
+html[data-skin="hud"] .map3d-home,
+html[data-skin="hud"] .map3d-back,
+html[data-skin="hud"] .gs-back-btn {
+  background: rgba(10, 24, 60, 0.82);
+  border: 1px solid var(--h-line);
+  color: var(--h-tx);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all .18s;
+}
+html[data-skin="hud"] .expand-btn:hover,
+html[data-skin="hud"] .map3d-home:hover,
+html[data-skin="hud"] .map3d-back:hover,
+html[data-skin="hud"] .gs-back-btn:hover {
+  background: rgba(34, 211, 238, 0.22);
+  border-color: var(--h-line-hi);
+  color: #fff;
+  box-shadow: var(--h-glow);
+}
+
+html[data-skin="hud"] .map3d-legend {
+  background: rgba(6, 14, 38, 0.82);
+  border: 1px solid var(--h-line);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ─────────────────── Полосы, треки, прогресс ─────────────────── */
+html[data-skin="hud"] .ai-bar-track,
+html[data-skin="hud"] .ai-split,
+html[data-skin="hud"] .ai-rr-bar,
+html[data-skin="hud"] .ai-grp-bar .tr {
+  background: rgba(10, 24, 60, 0.9);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.14);
+}
+html[data-skin="hud"] .ai-bar-fill.z,
+html[data-skin="hud"] .ai-split-z,
+html[data-skin="hud"] .ai-rr-bar .z,
+html[data-skin="hud"] .ai-grp-bar .fz {
+  background: linear-gradient(90deg, #ff9f2e, #ffce7a);
+  box-shadow: 0 0 12px rgba(255, 179, 71, 0.6);
+}
+html[data-skin="hud"] .ai-bar-fill.o,
+html[data-skin="hud"] .ai-split-o,
+html[data-skin="hud"] .ai-rr-bar .o,
+html[data-skin="hud"] .ai-grp-bar .fo {
+  background: linear-gradient(90deg, #22d3ee, #58ffdc);
+  box-shadow: 0 0 12px rgba(46, 230, 197, 0.6);
+}
+html[data-skin="hud"] .ai-bar-val { color: #fff; }
+
+/* ─────────────────── Рейтинги и таблицы ─────────────────── */
+html[data-skin="hud"] .kpi-top-mgp-hdr,
+html[data-skin="hud"] .ai-rating-hdr {
+  color: var(--h-dim);
+  border-bottom: 1px solid var(--h-line);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.66rem;
+}
+html[data-skin="hud"] .kpi-top-mgp-item:hover,
+html[data-skin="hud"] .ai-rating-row:hover,
+html[data-skin="hud"] .an-table tbody tr:hover td {
+  background: rgba(34, 211, 238, 0.10);
+}
+html[data-skin="hud"] .ai-rating-row { border-radius: 8px; }
+html[data-skin="hud"] .kpi-top-mgp-val { color: var(--h-cyan); text-shadow: 0 0 12px rgba(34, 211, 238, 0.4); }
+
+html[data-skin="hud"] .an-table th,
+html[data-skin="hud"] .an-table td,
+html[data-skin="hud"] .ai-dis-table th,
+html[data-skin="hud"] .ai-dis-table td {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
+}
+html[data-skin="hud"] .an-table thead th,
+html[data-skin="hud"] .ai-dis-table thead th {
+  background: rgba(8, 20, 52, 0.96);
+  color: var(--h-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html[data-skin="hud"] .an-table thead tr:first-child th:not(:first-child) {
+  border-left: 1px solid rgba(56, 189, 248, 0.18);
+}
+
+/* блоки внутри вкладок «Уровень совпадения» / «Группы» / «Классы болезней» */
+html[data-skin="hud"] .ai-colbox {
+  background: rgba(8, 18, 48, 0.55);
+  border: 1px solid var(--h-line);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+html[data-skin="hud"] .ai-metric-pct { color: #fff; text-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+html[data-skin="hud"] .ai-colbox h4 { color: #fff; letter-spacing: 0.3px; }
+
+/* выпадающие панели KPI-карточек */
+html[data-skin="hud"] .kpi-help-list,
+html[data-skin="hud"] .report-menu,
+html[data-skin="hud"] .geo-panel {
+  background: rgba(8, 18, 48, 0.94);
+  border: 1px solid var(--h-line-hi);
+  border-radius: 14px;
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6), 0 0 34px rgba(34, 211, 238, 0.14);
+}
+
+/* угловые маркеры раскрывающихся карточек */
+html[data-skin="hud"] .kpi-cn {
+  border-color: var(--h-cyan) !important;
+  filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.8));
+}
+
+/* ─────────────────── Динамика ─────────────────── */
+html[data-skin="hud"] .dyn-year-note { color: var(--h-dim); letter-spacing: 0.3px; }
+html[data-skin="hud"] .dyn-chart-wrap {
+  background: rgba(6, 14, 38, 0.45);
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* ─────────────────── Скроллбары ─────────────────── */
+html[data-skin="hud"] ::-webkit-scrollbar { width: 9px; height: 9px; }
+html[data-skin="hud"] ::-webkit-scrollbar-track { background: rgba(6, 14, 38, 0.5); border-radius: 5px; }
+html[data-skin="hud"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #22d3ee, #3b82f6);
+  border-radius: 5px;
+}
+html[data-skin="hud"] ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #58e8ff, #4a9bff); }
+html[data-skin="hud"] .mtab-scroll { scrollbar-color: #22d3ee rgba(6, 14, 38, 0.5); }
+
+/* ─────────────────── Экран входа ─────────────────── */
+html[data-skin="hud"] .auth-overlay {
+  background:
+    radial-gradient(900px 600px at 25% 10%, rgba(34, 211, 238, 0.18), transparent 60%),
+    radial-gradient(800px 600px at 80% 90%, rgba(59, 130, 246, 0.20), transparent 62%),
+    linear-gradient(170deg, #081130 0%, #04081a 100%);
+}
+html[data-skin="hud"] .auth-card {
+  background: rgba(12, 26, 66, 0.72);
+  border: 1px solid var(--h-line-hi);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 46px rgba(34, 211, 238, 0.16);
+}
+html[data-skin="hud"] .auth-logo {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.30), rgba(59, 130, 246, 0.30));
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+html[data-skin="hud"] .auth-title { color: #fff; text-shadow: 0 0 26px rgba(34, 211, 238, 0.35); }
+html[data-skin="hud"] .auth-sub { color: var(--h-dim); }
+html[data-skin="hud"] .auth-card input {
+  background: rgba(6, 14, 38, 0.75);
+  border: 1px solid var(--h-line);
+  color: var(--h-tx);
+}
+html[data-skin="hud"] .auth-card input::placeholder { color: var(--h-dim); }
+html[data-skin="hud"] .auth-card input:focus {
+  border-color: var(--h-cyan);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18), var(--h-glow);
+}
+html[data-skin="hud"] .auth-card button {
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
+  color: #04162a;
+  font-weight: 700;
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.40);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Кнопка-тумблер скина — оформляется вне скоупа, чтобы одинаково
+   работать и в исходном оформлении, и в HUD.
+   ═══════════════════════════════════════════════════════════════════ */
+.skin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  margin-left: 10px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--bd-mid, #5870a8);
+  background: var(--bg-deep, #2a3152);
+  color: var(--tx-sub, #c7cbe0);
+  font: 600 11px inherit;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .18s, color .18s, border-color .18s, box-shadow .18s;
+}
+.skin-toggle:hover { color: #fff; border-color: var(--bd-hi, #5870a8); }
+.skin-toggle:active { transform: scale(0.97); }
+
+.skin-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tx-muted, #8b93b5);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+  transition: background .18s, box-shadow .18s;
+}
+
+html[data-skin="hud"] .skin-toggle {
+  border-color: var(--h-line-hi);
+  background: rgba(34, 211, 238, 0.13);
+  color: #eaf4ff;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+html[data-skin="hud"] .skin-dot {
+  background: #22d3ee;
+  box-shadow: 0 0 10px #22d3ee, 0 0 20px rgba(34, 211, 238, 0.7);
+  animation: skin-pulse 2.2s ease-in-out infinite;
+}
+@keyframes skin-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="hud"] .skin-dot { animation: none; }
+  html[data-skin="hud"] .kpi-card,
+  html[data-skin="hud"] .ai-card { transition: none; }
+  html[data-skin="hud"] .kpi-card:hover,
+  html[data-skin="hud"] .ai-card:hover { transform: none; }
+}
+
+/* ═══════════════════ Доводка: перебиваем !important из style.css ═══════════════════ */
+
+/* Крупные числа KPI — неоновый градиент (в style.css они принудительно белые) */
+html[data-skin="hud"] .kpi-card .value.accent,
+html[data-skin="hud"] .value.accent,
+html[data-skin="hud"] .value.accent > span {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #6fe6ff !important;
+  color: #6fe6ff !important;
+  filter: none !important;
+  text-shadow: 0 0 28px rgba(34, 211, 238, 0.55), 0 0 8px rgba(34, 211, 238, 0.35) !important;
+}
+
+/* Легенда карты — стеклянная плашка */
+html[data-skin="hud"] .map-legend {
+  background: rgba(6, 14, 38, 0.82) !important;
+  border: 1px solid var(--h-line);
+  border-radius: 12px;
+  color: var(--h-tx);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), 0 0 22px rgba(34, 211, 238, 0.10);
+}
+html[data-skin="hud"] .map-legend .ml-dot {
+  box-shadow: 0 0 9px currentColor;
+  border-radius: 4px;
+}
+
+/* Зелёная шкала основной карты → сине-бирюзовая гамма скина.
+   Сдвигаем тон у слоя полигонов и у точек легенды синхронно,
+   чтобы легенда продолжала соответствовать заливке.
+   Карта раздела «Совпадения ИИ» уже в нужной гамме — её не трогаем. */
+html[data-skin="hud"] #map .leaflet-overlay-pane svg {
+  filter: hue-rotate(46deg) saturate(1.35) drop-shadow(0 0 6px rgba(34, 211, 238, 0.55));
+}
+html[data-skin="hud"] #map .map-legend .ml-dot {
+  filter: hue-rotate(46deg) saturate(1.35);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD v2 — доводка под референс «ситуационного центра»:
+   карта без растровой подложки (чистый светящийся вектор), иконки-плитки
+   у показателей, капсульные вкладки, логотип в шапке, световые потоки фона.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Фон: диагональные световые потоки + свечение горизонта ── */
+html[data-skin="hud"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(112deg, transparent 30%, rgba(56, 189, 248, 0.075) 40%, transparent 47%),
+    linear-gradient(112deg, transparent 55%, rgba(59, 130, 246, 0.065) 65%, transparent 72%),
+    linear-gradient(68deg,  transparent 74%, rgba(46, 230, 197, 0.045) 82%, transparent 88%),
+    radial-gradient(ellipse 70% 34% at 50% 100%, rgba(34, 211, 238, 0.10), transparent 70%);
+}
+
+/* ── Логотип-маркер в шапке ── */
+html[data-skin="hud"] header::before {
+  content: '';
+  flex: 0 0 auto;
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%23cfeaff%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274.6%27%20r%3D%272.5%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2719.4%27%20r%3D%272.5%27%2F%3E%3Ccircle%20cx%3D%274.6%27%20cy%3D%2712%27%20r%3D%272.5%27%2F%3E%3Ccircle%20cx%3D%2719.4%27%20cy%3D%2712%27%20r%3D%272.5%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%273.2%27%2F%3E%3C%2Fsvg%3E") center / 21px 21px no-repeat,
+    linear-gradient(140deg, rgba(34, 211, 238, 0.34), rgba(59, 130, 246, 0.34));
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* ── Иконка-плитка в углу карточки показателя ── */
+html[data-skin="hud"] .kpi-col .kpi-card::before,
+html[data-skin="hud"] .ai-card::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 17px;
+  right: auto;
+  bottom: auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  opacity: 1;
+  pointer-events: none;
+  background:
+    var(--h-ico) center / 21px 21px no-repeat,
+    linear-gradient(145deg, rgba(74, 155, 255, 0.34), rgba(34, 211, 238, 0.20));
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: box-shadow .22s, transform .22s;
+  /* сбрасываем наследие «вращающейся неоновой рамки» из style.css:
+     маска с mask-composite:xor вырезала всё, кроме кромки, и иконка не была видна */
+  -webkit-mask: none;
+  mask: none;
+  -webkit-mask-composite: add;
+  mask-composite: add;
+  padding: 0;
+  animation: none;
+  inset: auto;
+  top: 15px;
+  left: 17px;
+}
+html[data-skin="hud"] .kpi-col .kpi-card:hover::before,
+html[data-skin="hud"] .ai-card:hover::before {
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.30);
+  transform: translateY(-1px);
+}
+
+/* набор иконок по карточкам */
+html[data-skin="hud"] #kpi-card-help-types { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%23a6d2ff%27%3E%3Cpath%20d%3D%27M3%203h8v8H3zM13%203h8v8h-8zM3%2013h8v8H3zM13%2013h8v8h-8z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] #kpi-card-recipients { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%238ceaff%27%3E%3Cpath%20d%3D%27M9%2011a4%204%200%20100-8%204%204%200%20000%208zm0%202c-4.4%200-8%202.2-8%205v2h16v-2c0-2.8-3.6-5-8-5zm9.5-2a3%203%200%20100-6%203%203%200%20000%206zm.5%202c-1%200-1.9.2-2.7.5%201.7%201.3%202.7%202.9%202.7%204.5v2h5v-2c0-2.8-2.7-5-5-5z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] #kpi-card-sum        { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%23ffd08a%27%3E%3Cellipse%20cx%3D%2712%27%20cy%3D%275.5%27%20rx%3D%278%27%20ry%3D%273%27%2F%3E%3Cpath%20d%3D%27M4%209.2c0%201.7%203.6%203%208%203s8-1.3%208-3v3.3c0%201.7-3.6%203-8%203s-8-1.3-8-3V9.2zm0%206.3c0%201.7%203.6%203%208%203s8-1.3%208-3v3c0%201.7-3.6%203-8%203s-8-1.3-8-3v-3z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] #kpi-card-top-mgp    { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%2386f5d6%27%3E%3Cpath%20d%3D%27M3.5%2013h4.2v8H3.5zM9.9%206.5h4.2V21H9.9zM16.3%2010h4.2v11h-4.2z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] .ai-card:nth-child(1) { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%23a6d2ff%27%3E%3Cpath%20d%3D%27M13.2%202H6.4a2.4%202.4%200%2000-2.4%202.4v15.2A2.4%202.4%200%20006.4%2022h11.2a2.4%202.4%200%20002.4-2.4V8.8L13.2%202zm-.4%207.2V3.9l5.3%205.3h-5.3z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] .ai-card:nth-child(2) { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%2386f5d6%27%3E%3Cpath%20d%3D%27M12%202a10%2010%200%20100%2020%2010%2010%200%20000-20zm-1.3%2014.6l-4.3-4.3%201.8-1.8%202.5%202.5%205.5-5.5%201.8%201.8-7.3%207.3z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] .ai-card:nth-child(3) { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%238ceaff%27%3E%3Cpath%20d%3D%27M12%202a10%2010%200%20100%2020%2010%2010%200%20000-20zm0%203.1a6.9%206.9%200%20110%2013.8%206.9%206.9%200%20010-13.8zm0%203.3a3.6%203.6%200%20100%207.2%203.6%203.6%200%20000-7.2z%27%2F%3E%3C%2Fsvg%3E"); }
+html[data-skin="hud"] .ai-card:nth-child(4) { --h-ico: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27%23ffd08a%27%3E%3Cpath%20d%3D%27M11%202.1A10%2010%200%201013%2021.9V2.1a10.3%2010.3%200%2001-2%200z%27%20opacity%3D%27.45%27%2F%3E%3Cpath%20d%3D%27M13%202.1V11h8.9A10%2010%200%200013%202.1z%27%2F%3E%3C%2Fsvg%3E"); }
+
+/* содержимое карточек — ниже плитки, метка и число прижаты влево как в референсе */
+html[data-skin="hud"] .kpi-col-left .kpi-card {
+  padding: 70px 22px 18px;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-start;
+}
+html[data-skin="hud"] .kpi-col-right .kpi-card { padding-top: 70px; }
+html[data-skin="hud"] .ai-card { padding-top: 70px; }
+
+/* угловые скобки приглушаем — их роль взяли плитки */
+html[data-skin="hud"] .kpi-cn { opacity: 0.5; }
+
+/* ── Панели: крупнее радиус и ярче световая кромка ── */
+html[data-skin="hud"] .kpi-card,
+html[data-skin="hud"] .kpi-col .kpi-card,
+html[data-skin="hud"] .ai-card,
+html[data-skin="hud"] .ai-map-panel,
+html[data-skin="hud"] .ai-rating,
+html[data-skin="hud"] .kpi-geo-side,
+html[data-skin="hud"] .map-panel {
+  border-radius: 20px;
+  border-color: rgba(56, 189, 248, 0.34);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.10),
+    0 14px 46px rgba(0, 0, 0, 0.50),
+    0 0 36px rgba(34, 211, 238, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* ── Карта: как на референсе — без растровой подложки ── */
+html[data-skin="hud"] #map .leaflet-tile-pane,
+html[data-skin="hud"] #ai-map .leaflet-tile-pane { display: none; }
+
+html[data-skin="hud"] #map .leaflet-container,
+html[data-skin="hud"] #ai-map .leaflet-container {
+  background-color: #060e28;
+  background-image:
+    radial-gradient(rgba(56, 189, 248, 0.11) 1px, transparent 1px),
+    radial-gradient(ellipse 55% 45% at 50% 50%, rgba(34, 211, 238, 0.10), transparent 70%);
+  background-size: 26px 26px, 100% 100%;
+}
+
+/* контуры регионов — светящаяся неоновая линия.
+   stroke-width и fill-opacity не трогаем: на них держится отклик при наведении */
+html[data-skin="hud"] #map .leaflet-overlay-pane path,
+html[data-skin="hud"] #ai-map .leaflet-overlay-pane path {
+  stroke: #5fe8ff;
+  stroke-opacity: 0.85;
+  stroke-linejoin: round;
+}
+html[data-skin="hud"] #map .leaflet-overlay-pane svg {
+  filter: hue-rotate(46deg) saturate(1.4) drop-shadow(0 0 7px rgba(34, 211, 238, 0.65));
+}
+html[data-skin="hud"] #ai-map .leaflet-overlay-pane svg {
+  filter: saturate(1.25) drop-shadow(0 0 7px rgba(34, 211, 238, 0.55));
+}
+
+/* ── Вкладки-капсулы вместо подчёркивания ── */
+html[data-skin="hud"] .map-tabs-bar {
+  border-bottom: none;
+  align-items: center;
+  padding: 8px 0 6px;
+}
+html[data-skin="hud"] .mtab-scroll,
+html[data-skin="hud"] .ai-tabs {
+  background: rgba(8, 20, 52, 0.62);
+  border: 1px solid var(--h-line);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+html[data-skin="hud"] .ai-tabs-bar { border-bottom: none; padding: 6px 0; }
+
+html[data-skin="hud"] .mtab-btn,
+html[data-skin="hud"] .ai-tab {
+  border-radius: 999px;
+  border-bottom: 2px solid transparent;
+  padding: 7px 16px;
+}
+html[data-skin="hud"] .mtab-btn.active,
+html[data-skin="hud"] .ai-tab.active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.95), rgba(59, 130, 246, 0.95));
+  color: #04162a;
+  border-bottom-color: transparent;
+  text-shadow: none;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+/* карточка рейтинга: содержимое от верха, а не по центру (как в референсе) */
+html[data-skin="hud"] .kpi-col-right .kpi-card { justify-content: flex-start; }
+html[data-skin="hud"] .kpi-col-right .kpi-card > .label { align-self: stretch; text-align: left; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD v3 — подложка карты возвращена, карточки перестроены:
+   иконка слева, текст справа от неё, мини-график по показателю справа.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Подложка карты снова видна, но в холодной гамме скина ── */
+html[data-skin="hud"] #map .leaflet-tile-pane,
+html[data-skin="hud"] #ai-map .leaflet-tile-pane {
+  display: block;
+  filter: brightness(0.60) contrast(1.20) saturate(1.40) hue-rotate(185deg);
+}
+/* точечная сетка была нужна на пустом фоне — с тайлами она лишняя */
+html[data-skin="hud"] #map .leaflet-container,
+html[data-skin="hud"] #ai-map .leaflet-container {
+  background-image: none;
+  background-color: #050d24;
+}
+
+/* ── Карточка показателя: [иконка] [метка / число] [график] ── */
+html[data-skin="hud"] .kpi-col-left .kpi-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 38%);
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 2px;
+  padding: 18px 20px 18px 84px;   /* слева — место под плитку иконки */
+  text-align: left;
+}
+html[data-skin="hud"] .kpi-col-left .kpi-card > .label {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  margin-bottom: 2px;
+}
+html[data-skin="hud"] .kpi-col-left .kpi-card > .value {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+}
+/* иконка — по вертикали по центру карточки, у левого края */
+html[data-skin="hud"] .kpi-col-left .kpi-card::before {
+  top: 50%;
+  left: 20px;
+  margin-top: -25px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background-size: 25px 25px, auto;
+}
+
+/* ── Мини-график по показателю ── */
+html[data-skin="hud"] .kpi-spark-wrap {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  min-height: 78px;
+  max-height: 108px;
+}
+html[data-skin="hud"] .kpi-spark {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+/* в карточке рейтинга сетки нет — график не нужен */
+html[data-skin="hud"] .kpi-col-right .kpi-spark-wrap { display: none; }
+
+/* раскрытая карточка возвращается к обычной колонке, график прячется */
+html[data-skin="hud"] .kpi-col-left .kpi-card.expanded,
+html[data-skin="hud"] .kpi-col-left .kpi-card.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-left: 20px;
+}
+html[data-skin="hud"] .kpi-card.expanded .kpi-spark-wrap,
+html[data-skin="hud"] .kpi-card.closing .kpi-spark-wrap { display: none; }
+html[data-skin="hud"] .kpi-card.expanded::before,
+html[data-skin="hud"] .kpi-card.closing::before { display: none; }
+
+/* на узких экранах график только мешает */
+@media (max-width: 1100px) {
+  html[data-skin="hud"] .kpi-col-left .kpi-card { grid-template-columns: minmax(0, 1fr); }
+  html[data-skin="hud"] .kpi-spark-wrap { display: none; }
+}
+
+/* число в карточке чуть компактнее — иначе «16,8 млрд ₸» обрезается по ширине */
+html[data-skin="hud"] .kpi-col-left .kpi-card > .value {
+  font-size: clamp(1.15rem, 1.55vw, 1.85rem);
+  letter-spacing: -0.01em;
+}
+
+/* ═══════════════════ HUD v4 ═══════════════════ */
+
+/* Рейтинг видов помощи — без иконки-плитки: список занимает всю карточку */
+html[data-skin="hud"] #kpi-card-top-mgp::before { display: none; }
+html[data-skin="hud"] .kpi-col-right .kpi-card { padding: 18px 20px; }
+html[data-skin="hud"] #kpi-card-top-mgp > .label { margin-bottom: 10px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD v5
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Контуры регионов и районов — чёрные ── */
+html[data-skin="hud"] #map .leaflet-overlay-pane path,
+html[data-skin="hud"] #ai-map .leaflet-overlay-pane path {
+  stroke: #000000;
+  stroke-opacity: 0.9;
+}
+/* неоновое свечение контура убрано — с чёрной линией оно мутит край */
+html[data-skin="hud"] #map .leaflet-overlay-pane svg {
+  filter: hue-rotate(46deg) saturate(1.4) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
+html[data-skin="hud"] #ai-map .leaflet-overlay-pane svg {
+  filter: saturate(1.25) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
+
+/* ── График на всю карточку: фоновый элемент + рабочий график ──
+   Сетку заменяем на обычную колонку, холст уходит в подложку и гасится
+   маской слева, чтобы не мешать читать метку и число. */
+html[data-skin="hud"] .kpi-col-left .kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 18px 22px 18px 84px;
+  position: relative;
+}
+/* скругление карточки обрезает график по краям; у раскрытой карточки
+   внутренний список должен прокручиваться, поэтому её не трогаем */
+html[data-skin="hud"] .kpi-col-left .kpi-card:not(.expanded):not(.closing) {
+  overflow: hidden;
+}
+
+html[data-skin="hud"] .kpi-spark-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  min-height: 0;
+  max-height: none;
+  /* слева график растворяется, справа — в полную силу */
+  -webkit-mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.35) 30%, #000 56%, #000 100%);
+          mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.35) 30%, #000 56%, #000 100%);
+}
+
+/* текст — поверх графика */
+html[data-skin="hud"] .kpi-col-left .kpi-card > .label,
+html[data-skin="hud"] .kpi-col-left .kpi-card > .value {
+  position: relative;
+  z-index: 1;
+}
+html[data-skin="hud"] .kpi-col-left .kpi-card > .value {
+  font-size: clamp(1.25rem, 1.85vw, 2.1rem);
+}
+/* иконка и угловые метки — тоже поверх подложки */
+html[data-skin="hud"] .kpi-col-left .kpi-card::before { z-index: 2; }
+html[data-skin="hud"] .kpi-expand-corners { z-index: 2; }
+
+@media (max-width: 1100px) {
+  html[data-skin="hud"] .kpi-spark-wrap { display: none; }
+}
+
+/* Карточка снова колонка, а не сетка: align-self из сеточной раскладки
+   в flex-колонке управляет ГОРИЗОНТАЛЬЮ и уводил метку вправо. */
+html[data-skin="hud"] .kpi-col-left .kpi-card > .label,
+html[data-skin="hud"] .kpi-col-left .kpi-card > .value {
+  align-self: flex-start;
+  text-align: left;
+  max-width: 100%;
+}
+
+/* ── Тултип графиков: отдельный элемент в <body>, вне стекинга карточки ── */
+.hud-tip {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(6, 14, 38, 0.96);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6), 0 0 22px rgba(34, 211, 238, 0.20);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  white-space: nowrap;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: opacity .12s ease;
+}
+.hud-tip-t {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fa8d4;
+}
+.hud-tip-v {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #eaf4ff;
+}
+/* в классическом оформлении графиков нет — тултип не должен всплывать */
+html:not([data-skin="hud"]) .hud-tip { display: none; }
+
+/* ── Свечение крупных чисел ──
+   При blur 26–28px ореолы соседних цифр сливаются и читаются как заливка
+   позади числа. Уменьшаем радиус и непрозрачность: неон остаётся, «плашка» уходит. */
+html[data-skin="hud"] .kpi-card .value.accent,
+html[data-skin="hud"] .value.accent,
+html[data-skin="hud"] .value.accent > span {
+  text-shadow: 0 0 14px rgba(34, 211, 238, 0.26) !important;
+}
+html[data-skin="hud"] .kpi-card .value,
+html[data-skin="hud"] .ai-big,
+html[data-skin="hud"] .ai-mid {
+  text-shadow: 0 0 14px rgba(34, 211, 238, 0.24), 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+html[data-skin="hud"] .ai-mid.z { text-shadow: 0 0 14px rgba(255, 179, 71, 0.26); }
+html[data-skin="hud"] .ai-mid.o { text-shadow: 0 0 14px rgba(46, 230, 197, 0.26); }
+html[data-skin="hud"] .ai-metric-pct { text-shadow: 0 0 14px rgba(34, 211, 238, 0.24); }
+
+/* ── Движение на графиках ──
+   Слой со световым бликом, бегущим по области графика. Отдельный элемент,
+   а не отрисовка на холсте: анимация идёт на GPU и не заставляет
+   Chart.js перерисовываться каждый кадр. */
+html[data-skin="hud"] .kpi-spark-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 38%,
+    rgba(34, 211, 238, 0.16) 50%,
+    rgba(255, 255, 255, 0.05) 62%,
+    transparent 100%);
+  background-size: 46% 100%;
+  background-repeat: no-repeat;
+  animation: kpi-sweep 5.2s linear infinite;
+}
+@keyframes kpi-sweep {
+  0%   { background-position: -60% 0; opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { background-position: 160% 0; opacity: 0; }
+}
+
+/* лёгкое дыхание заливки под линией — добавляет ощущение живых данных */
+html[data-skin="hud"] .kpi-spark {
+  animation: kpi-breathe 6.5s ease-in-out infinite;
+}
+@keyframes kpi-breathe {
+  0%, 100% { filter: saturate(1) brightness(1); }
+  50%      { filter: saturate(1.18) brightness(1.10); }
+}
+
+/* карточки идут с разным сдвигом, чтобы блики не шли синхронно */
+html[data-skin="hud"] #kpi-card-recipients .kpi-spark-sweep { animation-delay: -1.7s; }
+html[data-skin="hud"] #kpi-card-sum .kpi-spark-sweep        { animation-delay: -3.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="hud"] .kpi-spark-sweep { animation: none; opacity: 0; }
+  html[data-skin="hud"] .kpi-spark { animation: none; }
+}
+
+/* ── Орб в шапке вместо статичной иконки-логотипа (см. /orb.js) ── */
+html[data-skin="hud"] header::before { content: none; }
+
+.header-orb {
+  display: none;
+  flex: 0 0 auto;
+  align-self: center;
+  /* канва рисуется в настроенном пакетом размере 64, а показывается мельче:
+     битмап 64×dpr ужимается в 42 CSS-пикселя и остаётся чётким */
+  width: 42px;
+  height: 42px;
+}
+html[data-skin="hud"] .header-orb { display: block; }
+
+/* ── Окно входа: перебиваем !important-цвета светлой темы из style.css ──
+   Там задано .auth-title{color:#202124!important} и т.д. — на тёмной
+   карточке заголовок сливался с фоном, а текст в полях был почти чёрным. */
+html[data-skin="hud"] .auth-title {
+  color: #ffffff !important;
+}
+html[data-skin="hud"] .auth-sub {
+  color: #c9dcff !important;
+}
+html[data-skin="hud"] .auth-card input {
+  color: #ffffff !important;
+}
+html[data-skin="hud"] .auth-card input::placeholder {
+  color: #9fb6dd !important;
+}
+html[data-skin="hud"] .auth-error {
+  color: #ff8e8e !important;
+}
+
+/* ═══════════════ Экран загрузки и проявление интерфейса ═══════════════ */
+
+.boot { display: none; }
+
+html[data-skin="hud"] .boot {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background:
+    radial-gradient(900px 600px at 50% 38%, rgba(34, 211, 238, 0.13), transparent 62%),
+    linear-gradient(170deg, #081130 0%, #050b22 45%, #04081a 100%);
+  opacity: 1;
+  transition: opacity .7s ease;
+}
+html[data-skin="hud"] .boot.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-orb {
+  width: 84px;
+  height: 84px;
+  filter: drop-shadow(0 0 26px rgba(34, 211, 238, 0.35));
+}
+
+.boot-cap {
+  font: 600 0.72rem 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8fa8d4;
+}
+/* многоточие «набегает» само — в разметке его нет */
+.boot-cap::after {
+  content: '';
+  animation: boot-dots 1.4s steps(4, end) infinite;
+}
+@keyframes boot-dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+}
+
+/* Пока идёт загрузка — интерфейс скрыт, затем плавно проявляется.
+   transform только у шапки: на .main-layout он создал бы содержащий блок
+   для position:fixed и сломал полноэкранный режим карты. */
+html[data-skin="hud"] header,
+html[data-skin="hud"] .main-layout,
+html[data-skin="hud"] #section-ai {
+  transition: opacity .75s ease, transform .75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.app-booting[data-skin="hud"] header {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+html.app-booting[data-skin="hud"] .main-layout,
+html.app-booting[data-skin="hud"] #section-ai {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="hud"] .boot { transition: none; }
+  html[data-skin="hud"] header,
+  html[data-skin="hud"] .main-layout,
+  html[data-skin="hud"] #section-ai { transition: none; }
+  html.app-booting[data-skin="hud"] header { transform: none; }
+  .boot-cap::after { animation: none; content: '...'; }
+}
+
+/* ── Экран входа: движущиеся графики на фоне и орб вместо эмодзи ── */
+html[data-skin="hud"] .auth-overlay { position: fixed; overflow: hidden; }
+
+.auth-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* к центру фон гасим, чтобы карточка входа читалась поверх графиков */
+  -webkit-mask-image: radial-gradient(ellipse 46% 52% at 50% 50%, transparent 0%, rgba(0,0,0,0.55) 46%, #000 78%);
+          mask-image: radial-gradient(ellipse 46% 52% at 50% 50%, transparent 0%, rgba(0,0,0,0.55) 46%, #000 78%);
+}
+
+html[data-skin="hud"] .auth-card { position: relative; z-index: 1; }
+
+/* кружок логотипа: вместо светлой заливки под эмодзи — тёмная линза под орб */
+html[data-skin="hud"] .auth-logo {
+  font-size: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+.auth-logo-orb {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+
+/* Гео-панель региона — оверлей поверх карточки рейтинга (position:absolute
+   из style.css). В общем правиле стеклянных панелей выше стоит
+   position:relative — из-за него панель возвращалась в поток колонки:
+   схлопывалась до 2px, вместе с gap отнимала 16px у карточки рейтинга
+   (та переставала совпадать по высоте с картой) и не раскрывалась при
+   заходе в регион. Возвращаем исходное позиционирование. */
+html[data-skin="hud"] .kpi-geo-side {
+  position: absolute;
+  inset: 0;
+}
+
+/* ═══════════════════════════ Доводка ═══════════════════════════ */
+
+/* 1. Анимация смены вкладок (Карта / Аналитика / Динамика и вкладки ИИ).
+   Через @keyframes, а не transition: панели переключаются сменой display,
+   с display:none переход не запускается. Только сдвиг и прозрачность —
+   масштаб трогать нельзя, он изменил бы габариты и сбил пересчёт карты. */
+@keyframes hud-pane-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+html[data-skin="hud"] .mtab-pane.active,
+html[data-skin="hud"] .ai-pane.active {
+  animation: hud-pane-in .32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 2. Гео-панель региона: в HUD у неё появилась собственная рамка со
+   скруглением, а внутренние блоки отступов не имеют — текст упирался
+   в край карточки. */
+html[data-skin="hud"] .kpi-geo-side {
+  padding: 16px 18px;
+}
+
+/* 3. Раскрытая карточка KPI должна вставать по центру экрана
+   (position:fixed + смещения из style.css). Правило раскладки карточек
+   выше задаёт position:relative и по специфичности перебивало его —
+   карточка уезжала в сторону и налезала на шапку. */
+html[data-skin="hud"] .kpi-col-left .kpi-card.expanded,
+html[data-skin="hud"] .kpi-col-right .kpi-card.expanded {
+  position: fixed;
+}
+
+/* Содержимое раскрытой карточки лежит в .kpi-help-list. В HUD этот контейнер
+   получил рамку со скруглением (оформление выпадающих панелей), но внутренних
+   отступов у него нет — список и графики упирались прямо в рамку. */
+html[data-skin="hud"] .kpi-help-list {
+  padding: 12px 15px;
+}
+/* полоса прокрутки списка теперь внутри отступа — прижимаем её к краю */
+html[data-skin="hud"] .kpi-card-expandable.expanded .kpi-help-list {
+  scrollbar-gutter: stable;
+}
+
+/* Карточки раздела «Совпадения ИИ» — иконка слева, как в «Мерах господдержки»
+   (было: плитка сверху, содержимое под ней). */
+html[data-skin="hud"] .ai-card {
+  padding: 18px 22px 18px 84px;
+}
+html[data-skin="hud"] .ai-card::before {
+  top: 50%;
+  left: 20px;
+  margin-top: -25px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background-size: 25px 25px, auto;
+}
+
+/* ═════════ Карточки «Совпадения ИИ»: луч по карточке и бегунок по полосам ═════════ */
+
+/* Верхняя неоновая кромка переезжает в фон карточки — освобождаем ::after
+   под луч (::before уже занят плиткой иконки). */
+html[data-skin="hud"] .ai-card {
+  background:
+    linear-gradient(90deg, transparent, #22d3ee, rgba(59, 130, 246, 0.85), transparent)
+      no-repeat top left 16px / calc(100% - 32px) 1px,
+    linear-gradient(160deg, rgba(30, 62, 130, 0.42) 0%, rgba(12, 26, 66, 0.55) 48%, rgba(8, 18, 48, 0.62) 100%);
+  overflow: hidden;
+}
+
+html[data-skin="hud"] .ai-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  top: 1px;                      /* не перекрываем кромку */
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(104deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.045) 36%,
+    rgba(34, 211, 238, 0.20) 50%,
+    rgba(255, 255, 255, 0.045) 64%,
+    transparent 100%);
+  background-size: 42% 100%;
+  background-repeat: no-repeat;
+  opacity: 1;
+  animation: hud-beam 5.4s linear infinite;
+}
+@keyframes hud-beam {
+  0%   { background-position: -55% 0; opacity: 0; }
+  10%  { opacity: 1; }
+  82%  { opacity: 1; }
+  100% { background-position: 155% 0; opacity: 0; }
+}
+/* карточки идут вразнобой, иначе луч читается как одна мигающая полоса */
+html[data-skin="hud"] .ai-card:nth-child(2)::after { animation-delay: -1.3s; }
+html[data-skin="hud"] .ai-card:nth-child(3)::after { animation-delay: -2.7s; }
+html[data-skin="hud"] .ai-card:nth-child(4)::after { animation-delay: -4.1s; }
+
+/* ── Бегунок по заполненной части полосы ──
+   Дорожка обрезала всё за своими границами, из-за чего терялось и свечение
+   самой полосы. Скругление переносим на заливку, дорожке разрешаем выпуск. */
+html[data-skin="hud"] .ai-card .ai-bar-track { overflow: visible; }
+html[data-skin="hud"] .ai-card .ai-bar-fill {
+  position: relative;
+  border-radius: 3px;
+}
+html[data-skin="hud"] .ai-card .ai-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff, 0 0 18px rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+  animation: hud-runner 5.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+/* пробегает примерно треть цикла, остальное — пауза: «иногда», а не постоянно */
+@keyframes hud-runner {
+  0%        { left: 0;    opacity: 0; }
+  5%        { opacity: 1; }
+  33%       { left: 100%; opacity: 1; }
+  38%, 100% { left: 100%; opacity: 0; }
+}
+html[data-skin="hud"] .ai-card .ai-bar-row:nth-child(2) .ai-bar-fill::after { animation-delay: -1.9s; }
+html[data-skin="hud"] .ai-card:nth-child(3) .ai-bar-fill::after { animation-delay: -3.2s; }
+html[data-skin="hud"] .ai-card:nth-child(3) .ai-bar-row:nth-child(2) .ai-bar-fill::after { animation-delay: -0.7s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="hud"] .ai-card::after { animation: none; opacity: 0; }
+  html[data-skin="hud"] .ai-card .ai-bar-fill::after { animation: none; opacity: 0; }
+}
+
+/* Кнопка «Казахстан» и переключатель 2D/3D стоят на одном top, но высота у них
+   была разная (27px против 36px) — центры не совпадали. Задаём общую высоту,
+   тогда выравнивание не зависит от внутренних отступов и кегля. */
+html[data-skin="hud"] .map-view-seg,
+html[data-skin="hud"] .map-panel .map-info {
+  height: 36px;
+  box-sizing: border-box;
+}
+html[data-skin="hud"] .map-panel .map-info {
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
