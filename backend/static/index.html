@@ -17,8 +17,8 @@
     /* Скин интерфейса: 'classic' — исходное оформление, 'hud' — ситуационный центр.
        Ставим до первой отрисовки, чтобы не мигало. */
     (function () {
-      var s = 'classic';
-      try { s = localStorage.getItem('ui-skin') || 'classic'; } catch (e) {}
+      var s = 'hud';
+      try { s = localStorage.getItem('ui-skin') || 'hud'; } catch (e) {}
       document.documentElement.setAttribute('data-skin', s);
 
       /* Экран загрузки и скрытие интерфейса включаются классом на <html>
